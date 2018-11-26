@@ -6,6 +6,8 @@ import timezones from '../../data/timezone';
 import classnames from 'classnames';
 import validationInput from '../../validations/signup';
 import TextFieldGroup from '../../common/TextFieldGroup';
+//import {browserHistory} from 'react-router'
+import PropTypes from 'prop-types'
 
 class SignupForm extends React.Component {
     constructor(props) {
@@ -40,17 +42,23 @@ class SignupForm extends React.Component {
         //axios.post('localhost:53762/api/Account/Register', this.state);
         console.log("--State--", this.state);
 
-        var self = this;
+        //var self = this;
         if (this.isValid()) {
             this.props.userSignupRequest(this.state)
-                .then(function (response) {
-                    console.log("--Response--", response);
-                    self.setState({ errors: response.data.errors });
-
-                })
-                .catch(function (error) {
-                    console.log("--Request error--", error);
-                });
+                .then(
+                    () => {
+                        this.props.addFlashMessage({
+                            type: 'success',
+                            text: 'You signed up success'
+                        })
+                        //browserHistory.push('/');
+                        this.context.router.push('/')
+                    },
+                (error) => {
+                var data = error.response.data;
+                this.setState({ erorrs: data.erorrs })
+                }
+                )
         }
     }
     render() {
@@ -114,4 +122,11 @@ class SignupForm extends React.Component {
     }
 }
 
+SignupForm.propTypes = {
+    userSignupRequest: PropTypes.func.isRequired,
+    addFlashMessage: PropTypes.func.isRequired
+}
+SignupForm.contextTypes = {
+    router: PropTypes.object.isRequired
+}
 export default SignupForm;
